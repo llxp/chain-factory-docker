@@ -1,0 +1,143 @@
+version: "3.7"
+
+services:
+
+  # redis
+  # --------------------------------
+  redis:
+    image: redis:6.0.5-alpine
+    volumes:
+      - ./data/redis:/data
+
+  redis-commander:
+    image: rediscommander/redis-commander
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_HOST=redis
+      - REDIS_DB=0
+    depends_on:
+      - redis
+    ports:
+      - 8001:443
+  # --------------------------------
+
+  # rabbitmq
+  # --------------------------------
+  rabbitmq:
+    build: services/rabbitmq
+    hostname: my-rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:15672"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+    ports:
+      - 8002:15672
+  # --------------------------------
+
+  # mongodb
+  # --------------------------------
+  mongodb:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=example
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    ports:
+      - 8003:443
+  # --------------------------------
+
+  # active-directory
+  # --------------------------------
+  active-directory:
+    image: nowsci/samba-domain
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/docker/containers/samba/data/:/var/lib/samba
+      - ./data/docker/containers/samba/config/samba:/etc/samba/external
+    environment:
+      - DOMAIN=AD.LAN
+      - DOMAINPASS=Start123
+      - INSECURELDAP=true
+    dns_search:
+      - ad.lan
+    dns:
+      - 8.8.8.8
+    hostname: localdc
+    cap_add:
+      - NET_ADMIN
+    privileged: true
+    restart: always
+  # --------------------------------
+
+  # vault
+  # --------------------------------
+  vault:
+    image: vault:latest
+    container_name: vault
+    volumes:
+      - ./data/vault/file:/vault/file:rw
+      - ./data/vault/config:/vault/config:rw
+      - ./data/vault/data:/vault/data
+      - ./data/vault/policies:/vault/policies
+    environment:
+      - VAULT_ADDR=http://0.0.0.0:8200
+      - VAULT_API_ADDR=http://0.0.0.0:8200
+      - VAULT_ADDRESS=http://0.0.0.0:8200
+      - VAULT_TOKEN='00000000-0000-0000-0000-000000000000'
+      - VAULT_UI=true
+    cap_add:
+      - IPC_LOCK
+    entrypoint: vault server -config=/vault/config/vault.json
+    ports:
+      - 8004:8200
+  # --------------------------------
+
+  # backend-api
+  # --------------------------------
+  backend-api:
+    image: backend_api
+    build: services/backend_api
+    tty: true
+    stdin_open: true
+    #entrypoint: bash
+    environment:
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - MONGODB_CONNECTION_URI=mongodb://root:example@mongodb/db?authSource=admin
+    ports:
+      - ${LISTEN_IP}:443:8000
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://rabbitmq:15672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  # --------------------------------
+
+  # authentication-api
+  # --------------------------------
+  authentication_api:
+    image: authentication_api
+    build: services/authentication_api
+    environment:
+      - LDAP_HOST=active-directory
+  # --------------------------------

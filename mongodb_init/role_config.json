@@ -1,0 +1,41 @@
+[
+  {
+    "enabled": true,
+    "created": ISODate(),
+    "updated": ISODate(),
+    "auth_config": [
+      {
+        "name": "CN=AccessPlatformAdmins,CN=Users,DC=ad,DC=lan",
+        "auth_type": "AuthType.GROUP"
+      }
+    ],
+    "role": "PLATFORM_ADMINISTRATOR",
+    "domain": "ad.lan"
+  },
+  {
+    "enabled": true,
+    "created": ISODate(),
+    "updated": ISODate(),
+    "auth_config": [
+      {
+        "name": "CN=AccessScopeAdmins,CN=Users,DC=ad,DC=lan",
+        "auth_type": "AuthType.GROUP"
+      }
+    ],
+    "role": "SCOPE_ADMINISTRATOR",
+    "domain": "ad.lan"
+  },
+  {
+    "enabled": false,
+    "created": ISODate(),
+    "updated": ISODate(),
+    "auth_config": [
+      {
+        "name": "CN=AccessUsers,CN=Users,DC=ad,DC=lan",
+        "auth_type": "AuthType.GROUP"
+      }
+    ],
+    "role": "USER",
+    "domain": "ad.lan"
+  }
+]

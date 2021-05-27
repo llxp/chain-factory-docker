@@ -1,0 +1,10 @@
+{
+    created: ISODate(),
+    updated: ISODate(),
+    domain: 'ad.lan',
+    idp_system_config: {
+        login_endpoint: 'http://authentication-api:8000/api/login',
+        user_information_endpoint: 'http://authentication-api:8000/api/get_user_groups',
+        translate_users_endpoint: 'http://authentication-api:8000/api/translate_users'
+    }
+}
