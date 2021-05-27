@@ -1,4 +1,4 @@
 #!/bin/bash
 
 current_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cp -r $current_dir/../../../authentication_api $current_dir/
+cp -r $current_dir/../../../authentication-api $current_dir/
