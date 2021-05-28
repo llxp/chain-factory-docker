@@ -8,6 +8,7 @@ RUN pip3 install -r /config/requirements.txt
 RUN mkdir -p /www/
 
 COPY ./backend-api/ /www/
+#COPY ./framework /www/framework/
 COPY config.json /docker-entrypoint.d/
 
 ENV REDIS_HOST=""
