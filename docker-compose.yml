@@ -134,7 +134,9 @@ services:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_USER=guest
       - RABBITMQ_PASSWORD=guest
-      - MONGODB_CONNECTION_URI=mongodb://root:example@mongodb/db?authSource=admin
+      - MONGODB_CONNECTION_URI=mongodb://root:example@mongodb/orchestrator_db?authSource=admin
+      - MONGODB_DB=orchestrator_db
+      - APP_SECRET=SECRET
     ports:
       - 8000:8000
       - 5003:5003
