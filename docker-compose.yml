@@ -62,7 +62,8 @@ services:
   # active-directory
   # --------------------------------
   active-directory:
-    image: nowsci/samba-domain
+    image: samba-domain
+    build: services/active-directory
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./data/docker/containers/samba/data/:/var/lib/samba
